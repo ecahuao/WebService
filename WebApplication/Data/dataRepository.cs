@@ -76,7 +76,17 @@ namespace WebApplication.Data
         private static void SQLInsert(SqlConnection connection, Dats data,string target, SqlTransaction trans)
         {
             //cmd.CommandText = "insert into NPVFRLOGPUBLICACION values(GETDATE(),'" + mec.Replace("_", "") + "','" + numTienda + "','" + messageGuid + "','OMITIDO','Se omite la publicación porque el numero de idoc es inferior')";
-            string commandText = "";
+            string commandHeader = "INSERT INTO " + data.target + "(";
+            string commandValues = " VALUES( ";
+
+            foreach (content val in data.values)
+            {
+                commandHeader += val.row + ",";
+                commandValues += val.value + ",";
+            }
+            commandHeader +=  ")";
+            commandValues +=  ")";
+            string commandText = commandHeader + commandValues;
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
                 command.Transaction = trans;
