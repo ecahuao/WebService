@@ -17,7 +17,7 @@ namespace WebApplication.Data
             _connectionString = configuration.GetValue<string>("Context");
 
         }
-        public async Task handleData(Dats data)
+        public async Task handleData(Dats data,string id)
         {
 
             string connectionString = _connectionString;// ConfigurationManager.ConnectionStrings["localdb"].ConnectionString;
@@ -33,6 +33,7 @@ namespace WebApplication.Data
                             SQLInsert(connection, data, "", transaction);
                             break;
                         case "update":
+                            SQLUpdate(connection, data, "", transaction);
                             break;
                         case "delete":
                             break;
@@ -87,6 +88,33 @@ namespace WebApplication.Data
                 {
                     stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
                     stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : ", ") + dataType(val);
+                }
+                commandHeader += stringHeader + ") ";
+                commandValues += stringValues + ") ";
+                string commandText = commandHeader + commandValues;
+                using (SqlCommand command = new SqlCommand(commandText, connection))
+                {
+                    command.Transaction = trans;
+                    int res = command.ExecuteNonQuery();
+                    if (res <= 0)
+                    {
+                        throw new Exception("SQL Command was no affected (" + commandText + ")");
+                    }
+                }
+            }
+        }
+        private static void SQLUpdate(SqlConnection connection, Dats data, string target, SqlTransaction trans)
+        {
+            foreach (Contents targ in data.content)
+            {
+                string commandHeader = "UPDATE " + targ.target + " SET ";
+                string commandWhere = " WHERE " +targ.key ;
+                string stringHeader = string.Empty;  //new string(""); ;
+                string stringValues = string.Empty; // string("");
+                foreach (Values val in targ.value)
+                {
+                    //stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
+                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row +"=" +dataType(val);
                 }
                 commandHeader += stringHeader + ") ";
                 commandValues += stringValues + ") ";

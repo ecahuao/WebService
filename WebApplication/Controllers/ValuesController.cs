@@ -39,14 +39,15 @@ namespace WebApplication.Controllers
         {
             //_connectionString = configuration.GetValue<string>("Context");
             
-            await _dataRep.handleData(datos);
+            await _dataRep.handleData(datos,"0");
             //return Ok(new string[] { "value1", "value2" });
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task Put(string id, [FromBody] Dats datos)
         {
+            await _dataRep.handleData(datos,id);
         }
 
         // DELETE api/values/5
