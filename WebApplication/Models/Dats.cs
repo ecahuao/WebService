@@ -9,21 +9,26 @@ namespace WebApplication.Models
     {
         public string operation { get; set; }
         public string path { get; set; }
-        public string target { get; set; }
-        public List<content> values { get; set; }
-        public string key { get; set; }
+        //public List<string> target { get; set; }
+        public List<Contents> content { get; set; }
         public int quantity { get; set; }
     }
-    public class content
+    public class Contents
     {
-        public content()
+        public string key { get; set; }
+        public string target { get; set; }
+        public List<Values> value { get; set; }
+    }
+    public class Values
+    {
+        public Values()
         {
             this.valueType = "";
             this.value = "";
             this.row = "";
         }
-        public string valueType{ get; set; }
+        public string valueType { get; set; }
         public string value { get; set; }
-        public string row{ get; set; }
+        public string row { get; set; }
     }
 }

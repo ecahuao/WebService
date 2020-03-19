@@ -25,7 +25,7 @@ namespace WebApplication.Data
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction(data.operation);
-                if (!(data.values is null))
+                if (!(data.content is null))
                 {
                     switch (data.operation.ToLower())
                     {
@@ -37,7 +37,8 @@ namespace WebApplication.Data
                         case "delete":
                             break;
                     }
-                    int reg = data.values.Count();                    
+                    transaction.Commit();
+                    // int reg = data.values.Count();                    
                     try
                     {
                         using (var cmd = connection.CreateCommand())
@@ -64,7 +65,7 @@ namespace WebApplication.Data
                 using (SqlCommand cmd = new SqlCommand("spInsertFunction", sql))
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Add(new SqlParameter("@function_name",  data.key));
+                    cmd.Parameters.Add(new SqlParameter("@function_name",  data.content[0].key));
                     cmd.Parameters.Add(new SqlParameter("@function_ruta", data.path));
                     await sql.OpenAsync();
                     await cmd.ExecuteNonQueryAsync();
@@ -76,26 +77,47 @@ namespace WebApplication.Data
         private static void SQLInsert(SqlConnection connection, Dats data,string target, SqlTransaction trans)
         {
             //cmd.CommandText = "insert into NPVFRLOGPUBLICACION values(GETDATE(),'" + mec.Replace("_", "") + "','" + numTienda + "','" + messageGuid + "','OMITIDO','Se omite la publicación porque el numero de idoc es inferior')";
-            string commandHeader = "INSERT INTO " + data.target + "(";
-            string commandValues = " VALUES( ";
-
-            foreach (content val in data.values)
+            foreach (Contents targ in data.content)
             {
-                commandHeader += val.row + ",";
-                commandValues += val.value + ",";
-            }
-            commandHeader +=  ")";
-            commandValues +=  ")";
-            string commandText = commandHeader + commandValues;
-            using (SqlCommand command = new SqlCommand(commandText, connection))
-            {
-                command.Transaction = trans;
-                int res = command.ExecuteNonQuery();
-                if (res <= 0)
+                string commandHeader = "INSERT INTO " + targ.target+ " ( ";
+                string commandValues = " VALUES( ";
+                string stringHeader = string.Empty;  //new string(""); ;
+                string stringValues = string.Empty; // string("");
+                foreach (Values val in targ.value)
                 {
-                    throw new Exception("SQL Command was no affected (" + commandText + ")");
+                    stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
+                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : ", ") + dataType(val);
+                }
+                commandHeader += stringHeader + ") ";
+                commandValues += stringValues + ") ";
+                string commandText = commandHeader + commandValues;
+                using (SqlCommand command = new SqlCommand(commandText, connection))
+                {
+                    command.Transaction = trans;
+                    int res = command.ExecuteNonQuery();
+                    if (res <= 0)
+                    {
+                        throw new Exception("SQL Command was no affected (" + commandText + ")");
+                    }
                 }
             }
+        }
+        private static string dataType(Values val)
+        {
+            switch (val.valueType.ToLower())
+            {
+                case "byte":
+                    return val.value;
+                case "integer":
+                    return val.value;
+                case "nvarchar":
+                    return ("'" + val.value + "'");
+                case "date":
+                    return ("'" + val.value + "'");
+                case "delete":
+                    break;
+            }
+            return "0";
         }
     }
 }
