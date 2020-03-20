@@ -108,18 +108,18 @@ namespace WebApplication.Data
             foreach (Contents targ in data.content)
             {
                 string commandHeader = "UPDATE " + targ.target + " SET ";
-                string commandWhere = " WHERE" + id + "=";
+                string commandWhere = " WHERE " + targ.key+ "=";
                 string stringHeader = string.Empty;  //new string(""); ;
                 string stringValues = string.Empty;
                 string stringWhere = string.Empty;// string("");
                 foreach (Values val in targ.value)
                 {
-                    stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
+                    //stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
                     stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row + "=" + dataType(val);
                 }
                 commandHeader += stringHeader + "=" + stringValues;
 
-                string commandText = commandHeader + commandWhere + 1;
+                string commandText = commandHeader + commandWhere + id;
                 using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
                     command.Transaction = trans;
