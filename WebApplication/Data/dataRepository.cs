@@ -33,7 +33,7 @@ namespace WebApplication.Data
                             SQLInsert(connection, data, "", transaction);
                             break;
                         case "update":
-                            SQLUpdate(connection, data, "", transaction);
+                            SQLUpdate(connection, data, "", transaction,id);
                             break;
                         case "delete":
                             break;
@@ -104,22 +104,23 @@ namespace WebApplication.Data
                 }
             }
         }
-        private static void SQLUpdate(SqlConnection connection, Dats data, string target, SqlTransaction trans)
+        private static void SQLUpdate(SqlConnection connection, Dats data, string target, SqlTransaction trans, string id)
         {
             foreach (Contents targ in data.content)
             {
                 string commandHeader = "UPDATE " + targ.target + " SET ";
-                string commandWhere = " WHERE " +targ.key ;
+                string commandWhere = " WHERE " + targ.key+ "=";
                 string stringHeader = string.Empty;  //new string(""); ;
-                string stringValues = string.Empty; // string("");
+                string stringValues = string.Empty;
+                string stringWhere = string.Empty;// string("");
                 foreach (Values val in targ.value)
                 {
                     //stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
-                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row +"=" +dataType(val);
+                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row + "=" + dataType(val);
                 }
-                commandHeader += stringHeader + ") ";
-                commandWhere += stringValues + ") ";
-                string commandText = commandHeader + commandWhere;
+                commandHeader += stringHeader + "=" + stringValues;
+
+                string commandText = commandHeader + commandWhere + id;
                 using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
                     command.Transaction = trans;
