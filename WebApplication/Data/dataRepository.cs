@@ -40,7 +40,7 @@ namespace WebApplication.Data
                     }
                     transaction.Commit();
                     // int reg = data.values.Count();                    
-                    try
+                    /*try
                     {
                         using (var cmd = connection.CreateCommand())
                         {
@@ -58,20 +58,21 @@ namespace WebApplication.Data
                     {
                         transaction.Rollback();
                         throw e;
-                    }
+                    }*/
                 }
-            }
-            using (SqlConnection sql = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand("spInsertFunction", sql))
+                /*
+                using (SqlConnection sql = new SqlConnection(_connectionString))
                 {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Add(new SqlParameter("@function_name",  data.content[0].key));
-                    cmd.Parameters.Add(new SqlParameter("@function_ruta", data.path));
-                    await sql.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
-                    return;
-                }
+                    using (SqlCommand cmd = new SqlCommand("spInsertFunction", sql))
+                    {
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@function_name", data.content[0].key));
+                        cmd.Parameters.Add(new SqlParameter("@function_ruta", data.path));
+                        await sql.OpenAsync();
+                        await cmd.ExecuteNonQueryAsync();
+                        return;
+                    }
+                }*/
             }
         }
         //private static void SQLInsert(SqlConnection connection, XmlNode step, string target, XmlNodeList rows, SqlTransaction trans)
@@ -117,8 +118,8 @@ namespace WebApplication.Data
                     stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row +"=" +dataType(val);
                 }
                 commandHeader += stringHeader + ") ";
-                commandValues += stringValues + ") ";
-                string commandText = commandHeader + commandValues;
+                commandWhere += stringValues + ") ";
+                string commandText = commandHeader + commandWhere;
                 using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
                     command.Transaction = trans;
