@@ -33,7 +33,7 @@ namespace WebApplication.Data
                             SQLInsert(connection, data, "", transaction);
                             break;
                         case "update":
-                            SQLUpdate(connection, data, "", transaction);
+                            SQLUpdate(connection, data, "", transaction,id);
                             break;
                         case "delete":
                             break;
@@ -61,18 +61,18 @@ namespace WebApplication.Data
                     }
                 }
             }
-            using (SqlConnection sql = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand("spInsertFunction", sql))
-                {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Add(new SqlParameter("@function_name",  data.content[0].key));
-                    cmd.Parameters.Add(new SqlParameter("@function_ruta", data.path));
-                    await sql.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
-                    return;
-                }
-            }
+            //using (SqlConnection sql = new SqlConnection(_connectionString))
+            //{
+            //    using (SqlCommand cmd = new SqlCommand("spInsertFunction", sql))
+            //    {
+            //        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            //        cmd.Parameters.Add(new SqlParameter("@function_name",  data.content[0].key));
+            //        cmd.Parameters.Add(new SqlParameter("@function_ruta", data.path));
+            //        await sql.OpenAsync();
+            //        await cmd.ExecuteNonQueryAsync();
+            //        return;
+            //    }
+            //}
         }
         //private static void SQLInsert(SqlConnection connection, XmlNode step, string target, XmlNodeList rows, SqlTransaction trans)
         private static void SQLInsert(SqlConnection connection, Dats data,string target, SqlTransaction trans)
@@ -103,22 +103,23 @@ namespace WebApplication.Data
                 }
             }
         }
-        private static void SQLUpdate(SqlConnection connection, Dats data, string target, SqlTransaction trans)
+        private static void SQLUpdate(SqlConnection connection, Dats data, string target, SqlTransaction trans, string id)
         {
             foreach (Contents targ in data.content)
             {
                 string commandHeader = "UPDATE " + targ.target + " SET ";
-                string commandWhere = " WHERE " +targ.key ;
+                string commandWhere = " WHERE" + id + "=";
                 string stringHeader = string.Empty;  //new string(""); ;
-                string stringValues = string.Empty; // string("");
+                string stringValues = string.Empty;
+                string stringWhere = string.Empty;// string("");
                 foreach (Values val in targ.value)
                 {
-                    //stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
-                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row +"=" +dataType(val);
+                    stringHeader += (string.IsNullOrEmpty(stringHeader) ? stringHeader : ", ") + val.row;
+                    stringValues += (string.IsNullOrEmpty(stringValues) ? stringValues : " , ") + val.row + "=" + dataType(val);
                 }
-                commandHeader += stringHeader + ") ";
-                commandValues += stringValues + ") ";
-                string commandText = commandHeader + commandValues;
+                commandHeader += stringHeader + "=" + stringValues;
+
+                string commandText = commandHeader + commandWhere + 1;
                 using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
                     command.Transaction = trans;
