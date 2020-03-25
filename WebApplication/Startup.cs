@@ -32,6 +32,8 @@ namespace WebApplication
             services.AddDbContext<Context>(options =>
             options.UseSqlServer(Configuration.GetValue<string>("Context")));
             services.AddScoped<dataRepository>();
+            services.AddMvc()
+                    .AddXmlSerializerFormatters();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

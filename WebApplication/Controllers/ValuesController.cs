@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using WebApplication.Data;
 using WebApplication.Models;
 
@@ -22,7 +25,7 @@ namespace WebApplication.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new string[] { "Hola Angelica", "como estas ??" };
             //return  Ok(_dataRep.InsertData);
         }
 
@@ -38,8 +41,14 @@ namespace WebApplication.Controllers
         public async Task Post([FromBody] Dats datos)
         {
             //_connectionString = configuration.GetValue<string>("Context");
-            
-            await _dataRep.handleData(datos,"0");
+            byte[] bytes = Convert.FromBase64String(datos.content);
+            Stream zipStream = new MemoryStream(bytes);
+            var myStr = new StreamReader(zipStream).ReadToEnd();
+                            //[{"first_name":"Primer Nombre"},{"last_name":"Apellido"},{"visited_at":"01-10-2020"},{"phone":"jklhjhj"},{"store_id":"321"}]
+            //String json = ("[{\"id\":\"1\",\"correo\":\"alpha@e.com\",\"clave\":\"123456\",\"numero\":\"+1 8XX-307-7455\"}]");
+            dynamic jsonObj = JsonConvert.DeserializeObject(myStr);
+            await _dataRep.postRepository(jsonObj,datos.mec);
+            //await _dataRep.handleData(datos,"0");
             //return Ok(new string[] { "value1", "value2" });
         }
 
