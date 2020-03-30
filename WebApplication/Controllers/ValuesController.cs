@@ -40,14 +40,12 @@ namespace WebApplication.Controllers
         [HttpPost]
         public async Task Post([FromBody] Dats datos)
         {
-            //_connectionString = configuration.GetValue<string>("Context");
             byte[] bytes = Convert.FromBase64String(datos.content);
             Stream zipStream = new MemoryStream(bytes);
             var myStr = new StreamReader(zipStream).ReadToEnd();
-                            //[{"first_name":"Primer Nombre"},{"last_name":"Apellido"},{"visited_at":"01-10-2020"},{"phone":"jklhjhj"},{"store_id":"321"}]
-            //String json = ("[{\"id\":\"1\",\"correo\":\"alpha@e.com\",\"clave\":\"123456\",\"numero\":\"+1 8XX-307-7455\"}]");
             dynamic jsonObj = JsonConvert.DeserializeObject(myStr);
-            await _dataRep.postRepository(jsonObj,datos.mec);
+            //await _dataRep.postRepository(jsonObj,datos.mec);
+            await _dataRep.postRepository(jsonObj);
             //await _dataRep.handleData(datos,"0");
             //return Ok(new string[] { "value1", "value2" });
         }
@@ -56,7 +54,16 @@ namespace WebApplication.Controllers
         [HttpPut("{id}")]
         public async Task Put(string id, [FromBody] Dats datos)
         {
-            await _dataRep.handleData(datos,id);
+            //await _dataRep.handleData(datos,id);
+        }
+        [HttpPut]
+        public async Task Put([FromBody] Dats datos)
+        {
+            byte[] bytes = Convert.FromBase64String(datos.content);
+            Stream zipStream = new MemoryStream(bytes);
+            var myStr = new StreamReader(zipStream).ReadToEnd();
+            dynamic jsonObj = JsonConvert.DeserializeObject(myStr);
+            await _dataRep.putRepository(jsonObj, datos.mec);
         }
 
         // DELETE api/values/5

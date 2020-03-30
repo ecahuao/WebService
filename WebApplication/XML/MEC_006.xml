@@ -1,11 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <steps>
   <step path="MT_PromocionesV2_Send/PROMOL/ROW" target="Visits">
-    <field field="visit_id" dbtype ="identity" size="10"  path="visit_id"/>
-    <field field="first_name" dbtype ="varchar"  size="0"  path="first_name" default="0"  />
-    <field field="last_name" dbtype ="varchar" size="100" path="last_name" default="NULL"  />
-    <field field="visited_at" dbtype ="datetime" size="0"  path="visited_at" default="NULL"  />
-    <field field="phone" dbtype ="varchar" size="100"  path="phone" default="NULL"  />
-    <field field="store_id" dbtype ="int" size="10" path="store_id" default="NULL"  />
+        <field field="visit_id" dbtype ="identity" size="10"  path="visit_id" key ="true"/>
+        <field field="first_name" dbtype ="varchar"  size="0"  path="first_name" default="0" key ="false" />
+        <field field="last_name" dbtype ="varchar" size="100" path="last_name" default="NULL"  key ="false"/>
+        <field field="visited_at" dbtype ="datetime" size="0"  path="visited_at" default="NULL"  key ="false"/>
+        <field field="phone" dbtype ="varchar" size="100"  path="phone" default="NULL"  key ="false"/>
+        <field field="store_id" dbtype ="int" size="10" path="store_id" default="NULL"  key ="false"/>
+        <child target="visitsdetail">
+  	    <field field="visit_id" dbtype ="int" size="10" path="visit_id" default="NULL" key ="true" parent= "false"/>
+            <field field="street" dbtype ="varchar" size="10" path="street" default="NULL" key ="false"/>
+            <field field="address" dbtype ="varchar" size="10" path="addres" default="NULL" key ="false"/>
+	</child>
   </step>
 </steps>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +14,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using WebApplication.Data;
 using WebApplication.Models;
+using Microsoft.AspNetCore.Http.Internal;
+using System.IO;
+using System.Text;
 
 namespace WebApplication
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IHostingEnvironment xenvironment;
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            xenvironment = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -48,9 +54,37 @@ namespace WebApplication
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.Run(MyMiddleware);
+            /*app.Run(async context =>
+            {
+                //await _dataRep.postRepository("1", "1");
+                await context.Response.WriteAsync("Hello from non-Map delegate. <p>");
+            });*/
             app.UseHttpsRedirection();
             app.UseMvc();
         }
+        private async Task MyMiddleware(HttpContext context)
+        {
+            dataRepository dr = new dataRepository(Configuration, xenvironment);
+            var bodyStr = "";
+            var req = context.Request;
+            string contentType = context.Request.ContentType;
+            req.EnableRewind();
+            using (StreamReader reader
+                      = new StreamReader(req.Body, Encoding.UTF8, true, 1024, true))
+            {
+                bodyStr = reader.ReadToEnd();
+            }
+            req.Body.Position = 0;
+            string stringHeader = (context.Request.ContentType == null ? "": context.Request.ContentType);
+            if (stringHeader.ToLower() == "application/json")
+            {
+                if (bodyStr.Trim() != "")
+                {
+                    await dr.postRepository(bodyStr);
+                }
+            }
+        }
+
     }
 }
