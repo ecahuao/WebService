@@ -9,6 +9,6 @@ namespace WebApplication.Models
     public class Resp
     {
         public string message{ get; set; }
-        public ObjectResult resp { get; set; }
+        public int resp { get; set; }
     }
 }

@@ -58,12 +58,12 @@ namespace WebApplication.Controllers
         }
         [HttpPut]
         public async Task Put([FromBody] Dats datos)
-        {
+        {/*
             byte[] bytes = Convert.FromBase64String(datos.content);
             Stream zipStream = new MemoryStream(bytes);
             var myStr = new StreamReader(zipStream).ReadToEnd();
             dynamic jsonObj = JsonConvert.DeserializeObject(myStr);
-            await _dataRep.putRepository(jsonObj, datos.mec);
+            await _dataRep.putRepository(jsonObj, datos.mec);*/
         }
 
         // DELETE api/values/5

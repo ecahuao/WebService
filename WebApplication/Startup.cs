@@ -67,6 +67,8 @@ namespace WebApplication
         {
             dataRepository dr = new dataRepository(Configuration, xenvironment);
             var bodyStr = "";
+            byte[] data;
+            Resp resp = await dr.postRepository(bodyStr);
             var req = context.Request;
             string contentType = context.Request.ContentType;
             req.EnableRewind();
@@ -76,15 +78,51 @@ namespace WebApplication
                 bodyStr = reader.ReadToEnd();
             }
             req.Body.Position = 0;
+            string metod = context.Request.Method;
             string stringHeader = (context.Request.ContentType == null ? "": context.Request.ContentType);
             if (stringHeader.ToLower() == "application/json")
             {
-                if (bodyStr.Trim() != "")
+                if ((bodyStr.Trim() != ""))
                 {
-                    await dr.postRepository(bodyStr);
+                    string verbType = context.Request.Method;
+                    if (verbType.ToLower() == "post")
+                    {
+                        resp = await dr.postRepository(bodyStr);
+                        context.Response.StatusCode = resp.resp;
+                        data = Encoding.UTF8.GetBytes(resp.message);
+                        context.Response.ContentType = "application/json";
+                        await context.Response.Body.WriteAsync(data, 0, data.Length);
+                        return;
+                    }
+                    else if (verbType.ToLower() == "put")
+                    { 
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 400;
+                        data = Encoding.UTF8.GetBytes("{\"message\": \"El verbo "+ verbType + " no ha sido habilitado en la API \"}");
+                        context.Response.ContentType = "application/json";
+                        await context.Response.Body.WriteAsync(data, 0, data.Length);
+                        return;
+                    }
+                }
+                else
+                {
+                    context.Response.StatusCode = 400;
+                    data = Encoding.UTF8.GetBytes("{\"message\": \"Debe incluir información en el Body de la petición \"}");
+                    context.Response.ContentType = "application/json";
+                    await context.Response.Body.WriteAsync(data, 0, data.Length);
+                    return;
                 }
             }
+            else 
+            {
+                context.Response.StatusCode = 500;
+                data = Encoding.UTF8.GetBytes("{\"message\": \"No se aceptan solicitudes " + stringHeader.ToLower() + "\"}");
+                context.Response.ContentType = "application/json";
+                await context.Response.Body.WriteAsync(data, 0, data.Length);
+                return;
+            }
         }
-
     }
 }
