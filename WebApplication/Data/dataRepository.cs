@@ -31,7 +31,7 @@ namespace WebApplication.Data
                 string connectionString = _connectionString;
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    string jsonData = JsonConvert.SerializeObject(data);
+                   // string jsonData = JsonConvert.SerializeObject(data);
                     JObject respObj = (JObject)JsonConvert.DeserializeObject(data);
                     string model = (string)respObj.SelectToken("mec");
                     if (model != null)
@@ -139,7 +139,11 @@ namespace WebApplication.Data
                 foreach (XmlNode field in step.ChildNodes)
                 {
                     string childNext = field.Name;
-                    if (childNext.ToLower() != "field")
+                    if (childNext.ToLower() == "field")
+                    {
+                        constructSQL(field, ref stringHeader, ref stringValues, ref stringOutput, item, itemAfected);
+                    }
+                    else
                     {
                         commandHeader += (!string.IsNullOrEmpty(stringHeader)) ? stringHeader + ") " : "";
                         commandValues += (!string.IsNullOrEmpty(stringValues)) ? stringValues + ")" : "";
@@ -163,14 +167,11 @@ namespace WebApplication.Data
                         JToken acmeDetail = item.SelectToken(pathDetail);
                         if (acmeDetail != null)
                         {
-                                //SQLInsert(connection, acmeDetail, stepchild, trans, document, itemAfected);
+                            //SQLInsert(connection, acmeDetail, stepchild, trans, document, itemAfected);
                             SQLInsert(connection, acmeDetail, stepChild, trans, document, itemAfected);
                         }
                         //}
-                    }
-                    else
-                    {
-                        constructSQL(field, ref stringHeader, ref stringValues, ref stringOutput, item, itemAfected);
+
                     }
                 }
                 commandHeader += (!string.IsNullOrEmpty(stringHeader)) ? stringHeader + ") " : "";
